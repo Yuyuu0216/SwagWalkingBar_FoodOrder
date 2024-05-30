@@ -6,9 +6,6 @@ import HeaderCartButton from "./HeaderCartButton";
 import UserBox from "./UserBox";
 
 const Header = (props) => {
-    const loginHandler = (e) => {
-        
-    }
 
     return <Fragment>
         <header className={classes.header}>
@@ -16,7 +13,7 @@ const Header = (props) => {
                 <Col span={5}></Col>
                 <Col span={6}><HeaderCartButton clicking={props.clickingCart}/></Col>
                 <Col span={3}></Col>
-                <Col span={7}><UserBox clicking={loginHandler}/></Col>
+                <Col span={7}><UserBox clicking={(e) => props.clickingBox(e)}/></Col>
         </header>
         <div className={classes['main-image']}>
             < img src={backgroundIMG} alt='Swag Walking Bar outlook!'/>
