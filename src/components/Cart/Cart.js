@@ -3,6 +3,7 @@ import { useContext } from 'react';
 import Modal from '../UI/Modal';
 import classes from './Cart.module.css';
 import CartContext from '../../store/cart-context';
+import { InputNumber,Flex } from 'antd';
 import CartItem from './CartItem';
 
 const Cart = (props) => {
@@ -30,6 +31,10 @@ const Cart = (props) => {
 
     return(
         <Modal onClose={props.onClose}>
+            <Flex vertical="false">
+                <h5>桌號</h5>
+                <InputNumber min={1} max={10}/>
+            </Flex>
             {cartItems}
             <div className={classes.total}>
                 <span>總金額</span>
