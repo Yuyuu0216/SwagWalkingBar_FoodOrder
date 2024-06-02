@@ -2,6 +2,7 @@
 import classes from './AvailableFoods.module.css';
 import Card from '../UI/Card';
 import FoodItem from './FoodItem/FoodItem';
+import { useEffect, useState } from 'react';
 
 const DUMMY_MEALS = [
     {
@@ -32,7 +33,26 @@ const DUMMY_MEALS = [
 
   const AvailableFoods = () => {
 
-    const foodsList = DUMMY_MEALS.map((meal) => <FoodItem id={meal.id} key={meal.id} name={meal.name} description={meal.description} price={meal.price}/>);
+      const [meals, setMeals] = useState([]);
+
+      useEffect(() => {
+          const fetchMeals = async () => {
+              try {
+                  const response = await fetch('http://localhost:5258/Products');
+                  if (!response.ok) {
+                      throw new Error('Could not fetch meals data!');
+                  }
+                  const data = await response.json();
+                  setMeals(data);
+              } catch (error) {
+                  console.error(error);
+              }
+          };
+
+          fetchMeals();
+      }, []);
+
+    const foodsList = meals.map((meal) => <FoodItem id={meal.id} key={meal.id} name={meal.name} description={meal.description} price={meal.price}/>);
 
     return <section className={classes.meals}>
       <Card>
