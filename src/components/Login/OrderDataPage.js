@@ -1,56 +1,51 @@
 import classes from "./OrderDataPage.module.css";
 import Modal from "../UI/Modal";
-import {Button, Descriptions, Divider, List, Typography} from 'antd';
+import {Descriptions, Divider, List} from 'antd';
 import {useEffect, useState} from "react";
+
+function formatAPITime(apiTime) {
+    // 將字符串轉換為Date對象
+    var apiDate = new Date(apiTime);
+
+    // 定義所需的格式
+    var options = { year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit' };
+
+    // 格式化日期
+    var formattedTime = apiDate.toLocaleString('en-US', options).replace(/\//g, '-').replace(/,/g, '');
+
+    return formattedTime;
+}
 const OrderData = (props) => {
     const [orderList, setOrderList] = useState([]);
 
-    useEffect(() => {
-        // 假设 fetchOrders 是一个从数据库获取所有订单的异步函数
-        const fetchOrders = async () => {
-            const data = await getOrdersFromDB();
-            setOrderList(data);
-        };
+    useEffect( () => {
+        const getOrders = async () => {
+        try {
+            const response = await fetch(`http://localhost:5258/Order/GetOrderData?Id=${props.userId}`);
+            if (!response.ok) {
+                throw new Error('Could not fetch meals data!');
+            }
+            const data = await response.json();
+            const formattedData = data.map(order => ({
+                ...order,
+                orderTime: "2024/06/03 19:00"
+            }));
+            setOrderList(formattedData);
+        } catch (error) {
+            console.error(error);
+        }
+    };
 
-        fetchOrders();
-    }, []);
+        getOrders();
+}, []);
 
     const renderOrderDescriptions = (order) => {
-        const items = [
-            { key: '1', label: '時間', children: order.time },
-            { key: '2', label: '總價', children: order.totalPrice },
-            { key: '3', label: '處理狀態', children: order.status },
-            // 可以根据实际数据增加更多的描述项
-        ];
+        const items = Object.entries(order).map(([key, value]) => ({
+            key,
+            label: key,
+            children: value,
+        }));
         return <Descriptions bordered size='default' items={items} />;
-    };
-    
-    const getOrdersFromDB = async () => {
-        // 模拟从数据库获取多笔订单数据
-        // 实际中你可能会使用 fetch 或 axios 来进行 API 调用
-        return [
-            {
-                time: '2024/02/16 19:00',
-                totalPrice: '$180',
-                status: '等待',
-            },
-            {
-                time: '2024/02/17 14:30',
-                totalPrice: '$250',
-                status: '完成',
-            },
-            {
-                time: '2024/02/17 14:30',
-                totalPrice: '$250',
-                status: '進行',
-            },
-            {
-                time: '2024/02/17 14:30',
-                totalPrice: '$250',
-                status: '待付',
-            }
-            // 添加更多的订单数据
-        ];
     };
     return(
         <Modal onClose={props.onClose}>

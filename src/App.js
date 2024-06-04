@@ -1,4 +1,4 @@
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import Header from "./components/Layout/Header";
 import Foods from "./components/Foods/Foods";
 import Cart from "./components/Cart/Cart";
@@ -39,9 +39,8 @@ function App() {
   const [registerIsShown,setRegisterIsShown] = useState(false);
   const [orderPageIsShown,setOrderPageIsShown] = useState(false);
   const [memberDataIsShown,setMemberDataIsShown] = useState(false);
-  const [isLogin, setIsLogin] = useState(true);
-  const userName = 'Queeeen'
-  const phoneNum = '0988888888'
+  const [account, setAccount] = useState('');
+  const [isLogin, setIsLogin] = useState(false);
 
   const checkToGo = ((ob) => {
     if(ob.key === '1'){
@@ -50,8 +49,18 @@ function App() {
       showOrderPageHandler();
     }else if(ob.key === '3'){
       showMemberHandler();
+    }else if(ob.key === '4'){
+      setIsLogin(false)
     }
   })
+  
+  const handleLoginStatusChange = (status) => {
+    setIsLogin(status)
+  }
+  
+  const storeAccount = (account) => {
+    setAccount(account)
+  }
   
   const showCartHandler = () => {
     setCartIsShown(true);
@@ -93,16 +102,41 @@ function App() {
   const hideMemberHandler = () => {
     setMemberDataIsShown(false);
   }
+
+  const [userData, setUserData] = useState({
+    id: 0,
+    account: '',
+    password: '',
+    phone: ''
+  });
+
+  useEffect(() => {
+    if (account) {
+    const fetchUser = async () => {
+      try {
+        const response = await fetch(`http://localhost:5258/Auth/userData?account=${account}`);
+        if (!response.ok) {
+          throw new Error('GG');
+        }
+        const data = await response.json();
+        setUserData(data);
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUser();
+  }}, [account]);
   
   return (
     <CartProvider>
       {/* 如果cartIsShown是true則顯示購物車，反之則否 */}
-      { cartIsShown && <Cart closing={hideCartHandler} onClose={hideCartHandler}/>}
-      { loginIsShown && <LoginPage closing={hideLoginHandler} onClose={hideLoginHandler} clickRegister={showRegisterHandler}/>}
-      { registerIsShown && <RegisterPage closing={hideRegisterHandler} onClose={hideRegisterHandler}/>}
-      { orderPageIsShown && <OrderDataPage closing={hideOrderPageHandler} onClose={hideOrderPageHandler}/>}
-      { memberDataIsShown && <MemberData closing={hideMemberHandler} onClose={hideMemberHandler} userName={userName} phoneNum={phoneNum}/>}
-      <Header clickingCart={showCartHandler} clickingBox={(e) => checkToGo(e) } loginStatus={isLogin} userName={userName} items={isLogin ? items1 : items2}/>
+      { cartIsShown && <Cart closing={hideCartHandler} onClose={hideCartHandler} userId={userData.id}/>}
+      { loginIsShown && <LoginPage closing={hideLoginHandler} onClose={hideLoginHandler} clickRegister={showRegisterHandler} onLoginStatusChange={handleLoginStatusChange} accountDataSet={storeAccount}/>}
+      { registerIsShown && <RegisterPage closing={hideRegisterHandler} onClose={hideRegisterHandler}  onLoginStatusChange={handleLoginStatusChange} accountDataSet={storeAccount}/>}
+      { orderPageIsShown && <OrderDataPage closing={hideOrderPageHandler} onClose={hideOrderPageHandler} userId={userData.id}/>}
+      { memberDataIsShown && <MemberData closing={hideMemberHandler} onClose={hideMemberHandler} userName={account} phoneNum={userData.phone}/>}
+      <Header clickingCart={showCartHandler} clickingBox={(e) => checkToGo(e) } loginStatus={isLogin} userName={account} items={isLogin ? items1 : items2}/>
       <main>
       <Foods />
       </main>
