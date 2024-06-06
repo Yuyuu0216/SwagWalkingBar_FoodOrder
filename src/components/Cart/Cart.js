@@ -25,6 +25,9 @@ const Cart = (props) => {
         if (tableNumber === 0) {
             message.error('請填寫桌號！');
             return;
+        }else if(!props.userId){
+            message.error('請先登入！');
+            return;
         }
 
         const orderItems = cartCtx.items.map(item => {
@@ -35,7 +38,7 @@ const Cart = (props) => {
         });
 
         const orderData = {
-            userId: props.userId, // 這裡可能需要根據實際情況更改
+            userId: props.userId,
             tableNumber: tableNumber,
             orderItems: orderItems
         };
